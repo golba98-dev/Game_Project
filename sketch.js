@@ -1,6 +1,3 @@
-// ===========================
-// Game Variables
-// ===========================
 var gameChar_x;
 var gameChar_y;
 var floorPos_y;
@@ -10,26 +7,24 @@ var isRight = false;
 var isFalling = false;
 var isPlummeting = false; 
 
-// Landscape Settings
+
 let coinAngle = 0;
 const ORIGINAL_WIDTH = 1000;
 const ORIGINAL_HEIGHT = 600;
 
-// Game Objects
+
 var collectable;
 var canyon;
 
-// ===========================
-// Setup
-// ===========================
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
     
-    // --- FIX FOR SCROLLBARS ---
+ 
     document.body.style.overflow = "hidden"; 
     document.body.style.margin = "0";
     document.body.style.padding = "0";
-    // --------------------------
+   
     
     floorPos_y = 300; 
     
@@ -53,24 +48,22 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 
-// ===========================
-// Main Draw Loop
-// ===========================
+
 function draw() {
     let scaleX = width / ORIGINAL_WIDTH;
     let scaleY = height / ORIGINAL_HEIGHT;
 
-    background(135, 206, 250); // Sky Blue
+    background(135, 206, 250);
 
     push();
     scale(scaleX, scaleY);
 
-    // --- Ground ---
+
     noStroke();
     fill(34, 139, 34);
     rect(0, floorPos_y, ORIGINAL_WIDTH, ORIGINAL_HEIGHT / 2);
 
-    // --- Scenery ---
+   
     drawCloud(150, 100);
     drawCloud(300, 150);
     drawCloud(600, 120);
@@ -82,7 +75,7 @@ function draw() {
 
     drawCanyon(canyon.x_pos, floorPos_y, canyon.width, ORIGINAL_HEIGHT - floorPos_y);
 
-    // --- Canyon Physics ---
+   
     if(gameChar_x > canyon.x_pos && gameChar_x < canyon.x_pos + canyon.width && gameChar_y >= floorPos_y) {
         isPlummeting = true;
     }
@@ -91,7 +84,7 @@ function draw() {
         gameChar_y += 5;
     }
     
-    // --- Collectable Logic ---
+   
     if(collectable.isFound == false) {
         drawCoin(collectable.x_pos, collectable.y_pos);
     }
@@ -102,18 +95,18 @@ function draw() {
         }
     }
 
-    // --- NEW MOVEMENT LOGIC (Fixes Sticky Keys) ---
+    
     isLeft = false;
     isRight = false;
 
     if (isPlummeting == false) {
-        // Check if Left Arrow (37) or A (65) is held down
+        
         if (keyIsDown(37) || keyIsDown(65)) {
             gameChar_x -= 5;
             isLeft = true;
         }
 
-        // Check if Right Arrow (39) or D (68) is held down
+        
         if (keyIsDown(39) || keyIsDown(68)) {
             gameChar_x += 5;
             isRight = true;
@@ -122,85 +115,83 @@ function draw() {
 	
     
     if (isLeft && isFalling) {
-        // --- Jumping Left ---
-        //Tread
+        
+      
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 30, 20, 10, 5);
-        //Body
+        
         fill(150);
         rect(gameChar_x - 8, gameChar_y - 55, 16, 25, 5);
-        //Arm
+       
         fill(130);
         push();
         translate(gameChar_x, gameChar_y -45);
         rotate(0.5);
         rect(-8, 0, 8, 15, 3);
         pop();
-        //Head
+  
         fill(180);
         rect(gameChar_x - 10, gameChar_y - 85, 20, 30, 8);
-        //Eye
+        
         fill(0, 255, 255);
         ellipse(gameChar_x - 8, gameChar_y - 70, 6, 8);
-        //Antenna
+    
         stroke(100);
         line(gameChar_x, gameChar_y - 85, gameChar_x - 4, gameChar_y - 95);
         noStroke();
         fill(255, 50, 50);
         ellipse(gameChar_x - 4, gameChar_y - 95, 6, 6);
-        //Thruster
+        
         fill(255, 200, 0, 150);
         ellipse(gameChar_x, gameChar_y - 15, 15, 10);
 
     } else if (isRight && isFalling) {
-        // --- Jumping Right ---
-        //Tread
+        
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 30, 20, 10, 5);
-        //Body
+      
         fill(150);
         rect(gameChar_x - 8, gameChar_y - 55, 16, 25, 5);
-        //Arm (Angled up slightly for jump)
+      
         fill(130);
         push();
         translate(gameChar_x, gameChar_y -45);
         rotate(-0.5);
         rect(0, 0, 8, 15, 3);
         pop();
-        //Head
+      
         fill(180);
         rect(gameChar_x - 10, gameChar_y - 85, 20, 30, 8);
-        //Eye
+       
         fill(0, 255, 255);
         ellipse(gameChar_x + 8, gameChar_y - 70, 6, 8);
-        //Antenna
+        
         stroke(100);
         line(gameChar_x, gameChar_y - 85, gameChar_x + 4, gameChar_y - 95);
         noStroke();
         fill(255, 50, 50);
         ellipse(gameChar_x + 4, gameChar_y - 95, 6, 6);
-        //Thruster
+       
         fill(255, 200, 0, 150);
         ellipse(gameChar_x, gameChar_y - 15, 15, 10);
 
     } else if (isLeft) {
-        // --- Walking Left ---
-        //Tread (Side view)
+       
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 10, 20, 10, 5);
-        //Body (Side view)
+      
         fill(150);
         rect(gameChar_x - 8, gameChar_y - 35, 16, 25, 5);
-        //Arm (swinging back slightly)
+        
         fill(130);
         rect(gameChar_x, gameChar_y - 30, 8, 15, 3);
-        //Head (Side view)
+      
         fill(180);
         rect(gameChar_x - 10, gameChar_y - 65, 20, 30, 8);
-        //Eye (Only one visible on left side)
+     
         fill(0, 255, 255);
         ellipse(gameChar_x - 8, gameChar_y - 50, 6, 8);
-        //Antenna
+       
         stroke(100);
         line(gameChar_x, gameChar_y - 65, gameChar_x - 2, gameChar_y - 75);
         noStroke();
@@ -209,22 +200,22 @@ function draw() {
 
     } else if (isRight) {
        
-        //Tread
+      
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 10, 20, 10, 5);
-        //Body
+        
         fill(150);
         rect(gameChar_x - 8, gameChar_y - 35, 16, 25, 5);
-        //Arm (swinging back slightly)
+      
         fill(130);
         rect(gameChar_x - 8, gameChar_y - 30, 8, 15, 3);
-        //Head
+       
         fill(180);
         rect(gameChar_x - 10, gameChar_y - 65, 20, 30, 8);
-        //Eye (Visible on right side)
+        
         fill(0, 255, 255);
         ellipse(gameChar_x + 8, gameChar_y - 50, 6, 8);
-        //Antenna
+      
         stroke(100);
         line(gameChar_x, gameChar_y - 65, gameChar_x + 2, gameChar_y - 75);
         noStroke();
@@ -233,59 +224,58 @@ function draw() {
 
     } else if (isFalling || isPlummeting) {
        
-        //Treads
+        
         fill(100);
-        rect(gameChar_x - 15, gameChar_y - 30, 10, 10, 3); // Left tread
-        rect(gameChar_x + 5, gameChar_y - 30, 10, 10, 3);  // Right tread
-        //Body
+        rect(gameChar_x - 15, gameChar_y - 30, 10, 10, 3); 
+        rect(gameChar_x + 5, gameChar_y - 30, 10, 10, 3);  
+        
         fill(150);
-        rect(gameChar_x - 12, gameChar_y - 55, 24, 25, 5); // Main body
-        //Head
+        rect(gameChar_x - 12, gameChar_y - 55, 24, 25, 5);
+        
         fill(180);
-        rect(gameChar_x - 15, gameChar_y - 85, 30, 30, 8); // Head base
-        //Eyes (Glowing)
+        rect(gameChar_x - 15, gameChar_y - 85, 30, 30, 8);
+       
         fill(0, 255, 255);
         ellipse(gameChar_x - 7, gameChar_y - 70, 8, 8);
         ellipse(gameChar_x + 7, gameChar_y - 70, 8, 8);
-        //Antenna
+       
         stroke(100);
         line(gameChar_x, gameChar_y - 85, gameChar_x, gameChar_y - 95);
         noStroke();
         fill(255, 50, 50);
         ellipse(gameChar_x, gameChar_y - 95, 6, 6);
-        //Simple "thruster" effect
+      
         fill(255, 200, 0, 150);
         ellipse(gameChar_x - 10, gameChar_y - 15, 8, 15);
         ellipse(gameChar_x + 10, gameChar_y - 15, 8, 15);
 
     } else {
        
-        //Treads
+        
         fill(100);
-        rect(gameChar_x - 15, gameChar_y - 10, 10, 10, 3); // Left tread
-        rect(gameChar_x + 5, gameChar_y - 10, 10, 10, 3);  // Right tread
-        //Body
+        rect(gameChar_x - 15, gameChar_y - 10, 10, 10, 3); 
+        rect(gameChar_x + 5, gameChar_y - 10, 10, 10, 3);  
+        
         fill(150);
-        rect(gameChar_x - 12, gameChar_y - 35, 24, 25, 5); // Main body
-        //Head
+        rect(gameChar_x - 12, gameChar_y - 35, 24, 25, 5); 
+      
         fill(180);
-        rect(gameChar_x - 15, gameChar_y - 65, 30, 30, 8); // Head base
-        //Eyes (Glowing)
-        fill(0, 255, 255); // Cyan glow
+        rect(gameChar_x - 15, gameChar_y - 65, 30, 30, 8); 
+      
+        fill(0, 255, 255); 
         ellipse(gameChar_x - 7, gameChar_y - 50, 8, 8);
         ellipse(gameChar_x + 7, gameChar_y - 50, 8, 8);
-        //Antenna
+       
         stroke(100);
         line(gameChar_x, gameChar_y - 65, gameChar_x, gameChar_y - 75);
         noStroke();
-        fill(255, 50, 50); // Red light
+        fill(255, 50, 50); 
         ellipse(gameChar_x, gameChar_y - 75, 6, 6);
     }
     
-    // --- Foreground ---
+    
     drawTree(120, floorPos_y - 50);
 
-    // --- Gravity Logic ---
     if (gameChar_y < floorPos_y) {
         gameChar_y += 2; 
         isFalling = true; 
@@ -300,12 +290,12 @@ function draw() {
 
 function keyPressed() {
     
-    //Freeze movement during plummet
+
     if (isPlummeting) {
         return;
     }
 
-    // Only handle Jumping (Space or W)
+   
     if (keyCode == 32 || keyCode == 87) { 
         if (!isFalling && !isPlummeting) { 
             gameChar_y -= 100; 
