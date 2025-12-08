@@ -2,35 +2,33 @@ var gameChar_x;
 var gameChar_y;
 var floorPos_y;
 
-// sample tree arrays to avoid crashes when code loops over trees
+// We use this array to store tree objects (with random properties)
+var trees = [];
 var trees_x = [120, 400, 700, 1000, 1400];
-var trees_y = [];
 
 var isLeft = false;
 var isRight = false;
 var isFalling = false;
 var isPlummeting = false; 
 
-
 let coinAngle = 0;
 const ORIGINAL_WIDTH = 1000;
 const ORIGINAL_HEIGHT = 600;
 
-
 var collectable;
 var canyon;
-
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
     
- 
     document.body.style.overflow = "hidden"; 
     document.body.style.margin = "0";
     document.body.style.padding = "0";
-   
     
-    floorPos_y = 300; 
+    // --- MODIFICATION: Lowered the floor ---
+    // Changed from 300 to 450. 
+    // This moves the ground down, giving you more sky and less "grass wall".
+    floorPos_y = 450; 
     
     gameChar_x = 100;
     gameChar_y = floorPos_y;
@@ -47,10 +45,21 @@ function setup() {
         width: 100
     };
 
-    // populate tree y positions relative to the floor so draws are safe
-    trees_y = [];
+    // --- MODIFICATION: Generate Random Trees ---
+    // We populate the 'trees' array with objects containing random sizes and colors
+    trees = [];
     for (var i = 0; i < trees_x.length; i++) {
-        trees_y.push(floorPos_y - 50);
+        trees.push({
+            x: trees_x[i],
+            y: floorPos_y,
+            // Randomize trunk width and height
+            trunkW: random(25, 45),
+            trunkH: random(80, 160),
+            // Randomize canopy (leaf) size
+            canopySize: random(100, 150),
+            // Randomize leaf color (various shades of green)
+            leafColor: color(random(20, 60), random(100, 180), random(20, 60))
+        });
     }
 }
 
@@ -58,12 +67,11 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 
-
 function draw() {
     let scaleX = width / ORIGINAL_WIDTH;
     let scaleY = height / ORIGINAL_HEIGHT;
 
-    background(135, 206, 250);
+    background(135, 206, 250); // Sky Blue
 
     push();
     scale(scaleX, scaleY);
@@ -73,11 +81,12 @@ function draw() {
     translate(-cameraPosX, 0);
 
     noStroke();
+    
+    // Draw the ground (extended for scrolling)
     fill(34, 139, 34);
-    // extend ground left so there's no "blue void" when scrolling
     rect(-2000, floorPos_y, ORIGINAL_WIDTH + 4000, ORIGINAL_HEIGHT / 2);
 
-   
+    // Background objects
     drawCloud(150, 100);
     drawCloud(300, 150);
     drawCloud(600, 120);
@@ -87,9 +96,14 @@ function draw() {
     drawMountain(400, floorPos_y, 250, 200);
     drawMountain(650, floorPos_y, 350, 280);
 
+    // --- MODIFICATION: Draw the detailed trees ---
+    for (var i = 0; i < trees.length; i++) {
+        drawTree(trees[i]);
+    }
+
     drawCanyon(canyon.x_pos, floorPos_y, canyon.width, ORIGINAL_HEIGHT - floorPos_y);
 
-   
+    // Logic: Falling into canyon
     if(gameChar_x > canyon.x_pos && gameChar_x < canyon.x_pos + canyon.width && gameChar_y >= floorPos_y) {
         isPlummeting = true;
     }
@@ -98,7 +112,7 @@ function draw() {
         gameChar_y += 5;
     }
     
-   
+    // Logic: Collectable
     if(collectable.isFound == false) {
         drawCoin(collectable.x_pos, collectable.y_pos);
     }
@@ -109,28 +123,24 @@ function draw() {
         }
     }
 
-    
+    // Logic: Movement
     isLeft = false;
     isRight = false;
 
     if (isPlummeting == false) {
-        
         if (keyIsDown(37) || keyIsDown(65)) {
             gameChar_x -= 5;
             isLeft = true;
         }
 
-        
         if (keyIsDown(39) || keyIsDown(68)) {
             gameChar_x += 5;
             isRight = true;
         }
     }
-	
     
+    // --- Character Drawing Logic ---
     if (isLeft && isFalling) {
-        
-      
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 30, 20, 10, 5);
         
@@ -160,7 +170,6 @@ function draw() {
         ellipse(gameChar_x, gameChar_y - 15, 15, 10);
 
     } else if (isRight && isFalling) {
-        
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 30, 20, 10, 5);
       
@@ -190,7 +199,6 @@ function draw() {
         ellipse(gameChar_x, gameChar_y - 15, 15, 10);
 
     } else if (isLeft) {
-       
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 10, 20, 10, 5);
       
@@ -213,8 +221,6 @@ function draw() {
         ellipse(gameChar_x - 2, gameChar_y - 75, 6, 6);
 
     } else if (isRight) {
-       
-      
         fill(100);
         rect(gameChar_x - 10, gameChar_y - 10, 20, 10, 5);
         
@@ -237,8 +243,6 @@ function draw() {
         ellipse(gameChar_x + 2, gameChar_y - 75, 6, 6);
 
     } else if (isFalling || isPlummeting) {
-       
-        
         fill(100);
         rect(gameChar_x - 15, gameChar_y - 30, 10, 10, 3); 
         rect(gameChar_x + 5, gameChar_y - 30, 10, 10, 3);  
@@ -264,8 +268,6 @@ function draw() {
         ellipse(gameChar_x + 10, gameChar_y - 15, 8, 15);
 
     } else {
-       
-        
         fill(100);
         rect(gameChar_x - 15, gameChar_y - 10, 10, 10, 3); 
         rect(gameChar_x + 5, gameChar_y - 10, 10, 10, 3);  
@@ -286,14 +288,6 @@ function draw() {
         fill(255, 50, 50); 
         ellipse(gameChar_x, gameChar_y - 75, 6, 6);
     }
-    
-    
-    // draw trees from arrays (safe even if arrays are empty)
-    for (var i = 0; i < trees_x.length; i++) {
-        var tx = trees_x[i];
-        var ty = (trees_y[i] !== undefined) ? trees_y[i] : floorPos_y - 50;
-        drawTree(tx, ty);
-    }
 
     if (gameChar_y < floorPos_y) {
         gameChar_y += 2; 
@@ -308,13 +302,10 @@ function draw() {
 }
 
 function keyPressed() {
-    
-
     if (isPlummeting) {
         return;
     }
 
-   
     if (keyCode == 32 || keyCode == 87) { 
         if (!isFalling && !isPlummeting) { 
             gameChar_y -= 100; 
@@ -338,14 +329,34 @@ function drawMountain(baseX, baseY, w, h) {
     triangle(baseX + w / 2, baseY - h, baseX + w / 2 - 30, baseY - h + 50, baseX + w / 2 + 30, baseY - h + 50);
 }
 
-function drawTree(x, y) {
-    fill(139, 69, 19);
+// --- MODIFICATION: New Detailed Tree Function ---
+// This function now takes a 'tree object' (t) instead of just x,y
+function drawTree(t) {
     noStroke();
-    rect(x, y, 40, 120);
-    fill(34, 139, 34);
-    ellipse(x + 20, y - 40, 140, 140);
-    ellipse(x - 30, y, 100, 100);
-    ellipse(x + 70, y, 100, 100);
+    
+    // 1. Shadow at the base
+    fill(0, 50); // Transparent black
+    ellipse(t.x + t.trunkW/2, t.y, t.trunkW * 1.5, 10);
+
+    // 2. Trunk
+    fill(100, 50, 10); // Brown
+    rect(t.x, t.y - t.trunkH, t.trunkW, t.trunkH);
+    
+    // 3. Foliage (Leaves) - Uses the random color specific to this tree
+    fill(t.leafColor);
+    
+    // Draw 3 layers of leaves to make it look detailed
+    // Bottom bush
+    ellipse(t.x + t.trunkW/2, t.y - t.trunkH * 0.8, t.canopySize, t.canopySize * 0.8);
+    
+    // Middle bushes (slightly brighter for 3D effect)
+    fill(red(t.leafColor) + 20, green(t.leafColor) + 20, blue(t.leafColor) + 20);
+    ellipse(t.x + t.trunkW/2 - 20, t.y - t.trunkH, t.canopySize * 0.7, t.canopySize * 0.7);
+    ellipse(t.x + t.trunkW/2 + 20, t.y - t.trunkH, t.canopySize * 0.7, t.canopySize * 0.7);
+    
+    // Top bush
+    fill(t.leafColor);
+    ellipse(t.x + t.trunkW/2, t.y - t.trunkH * 1.2, t.canopySize * 0.6, t.canopySize * 0.6);
 }
 
 function drawCoin(x, y) {
