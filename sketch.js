@@ -2,6 +2,10 @@ var gameChar_x;
 var gameChar_y;
 var floorPos_y;
 
+// sample tree arrays to avoid crashes when code loops over trees
+var trees_x = [120, 400, 700, 1000, 1400];
+var trees_y = [];
+
 var isLeft = false;
 var isRight = false;
 var isFalling = false;
@@ -42,6 +46,12 @@ function setup() {
         x_pos: 700,
         width: 100
     };
+
+    // populate tree y positions relative to the floor so draws are safe
+    trees_y = [];
+    for (var i = 0; i < trees_x.length; i++) {
+        trees_y.push(floorPos_y - 50);
+    }
 }
 
 function windowResized() {
@@ -58,10 +68,14 @@ function draw() {
     push();
     scale(scaleX, scaleY);
 
+    // Camera: keep the character roughly centered by translating the world
+    var cameraPosX = gameChar_x - ORIGINAL_WIDTH / 2;
+    translate(-cameraPosX, 0);
 
     noStroke();
     fill(34, 139, 34);
-    rect(0, floorPos_y, ORIGINAL_WIDTH, ORIGINAL_HEIGHT / 2);
+    // extend ground left so there's no "blue void" when scrolling
+    rect(-2000, floorPos_y, ORIGINAL_WIDTH + 4000, ORIGINAL_HEIGHT / 2);
 
    
     drawCloud(150, 100);
@@ -274,7 +288,12 @@ function draw() {
     }
     
     
-    drawTree(120, floorPos_y - 50);
+    // draw trees from arrays (safe even if arrays are empty)
+    for (var i = 0; i < trees_x.length; i++) {
+        var tx = trees_x[i];
+        var ty = (trees_y[i] !== undefined) ? trees_y[i] : floorPos_y - 50;
+        drawTree(tx, ty);
+    }
 
     if (gameChar_y < floorPos_y) {
         gameChar_y += 2; 
