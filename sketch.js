@@ -328,6 +328,7 @@ function drawClouds() {
     drawCloud(800, 80);
 }
 
+
 function drawCloud(x, y) {
     fill(255);
     noStroke();
