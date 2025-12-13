@@ -4,6 +4,7 @@ var floorPos_y;
 
 var trees = [];
 var mountains = []; 
+var clouds = [];
 
 var collectable;
 var canyon;
@@ -41,6 +42,7 @@ function setup() {
 
     generateTrees();
     generateMountains(); 
+    generateClouds();
 }
 
 function windowResized() {
@@ -124,6 +126,21 @@ function generateMountains() {
         var tc = random(80, 180); 
         
         mountains.push({x: tx, width: tw, height: th, color: tc});
+    }
+}
+
+function generateClouds() {
+    clouds = [];
+    // Create several clouds spanning the world range
+    for (let i = 0; i < 14; i++) {
+        // place clouds across the horizontal world area
+        let cx = random(-2000, 3000);
+        let cy = random(60, 180);
+        // slow speed for gentle movement
+        let speed = random(0.2, 1.2);
+        // give each cloud a slightly different color (soft off-whites)
+        let col = color(random(220, 255), random(220, 255), random(230, 255), random(180, 230));
+        clouds.push({x: cx, y: cy, speed: speed, color: col});
     }
 }
 
@@ -454,26 +471,41 @@ function drawGround() {
 }
 
 function drawClouds() {
-    drawCloud(-450, 90);
-    drawCloud(-200, 120);
-    drawCloud(150, 100);
-    drawCloud(300, 150);
-    drawCloud(450, 70);
-    drawCloud(600, 120);
-    drawCloud(800, 80);
-    drawCloud(1100, 140);
-    drawCloud(1400, 100);
+    // Update and draw clouds from the `clouds` array
+    for (let i = 0; i < clouds.length; i++) {
+        let c = clouds[i];
+        drawCloud(c.x, c.y, c.color);
+
+        // Move cloud horizontally
+        c.x += c.speed;
+
+        // Wrap cloud around when it leaves the world bounds
+        if (c.x > 4000) {
+            c.x = -800 - random(0, 600);
+            c.y = random(60, 180);
+            c.speed = random(0.2, 1.2);
+        }
+    }
 }
 
 
-function drawCloud(x, y) {
+function drawCloud(x, y, col) {
     noStroke();
-    fill(255, 255, 255, 200); 
+    if (col === undefined) {
+        col = color(255, 255, 255, 200);
+    }
+
+    // Main cloud body
+    fill(col);
     ellipse(x, y, 80, 60);
     ellipse(x + 40, y, 100, 70);
     ellipse(x + 80, y, 80, 60);
-    
-    fill(255, 255, 255, 100); 
+
+    // Slightly lighter highlight for depth
+    let hr = constrain(red(col) + 10, 0, 255);
+    let hg = constrain(green(col) + 10, 0, 255);
+    let hb = constrain(blue(col) + 10, 0, 255);
+    fill(hr, hg, hb, 140);
     ellipse(x + 30, y - 10, 50, 40);
 }
 
